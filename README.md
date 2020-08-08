@@ -38,6 +38,55 @@ With just 2 clicks (not including Colab auth process), the 1.5B pretrained Chine
 <img src="./.github/demo.png" width="640">
 
 ## Train
+**The following commands will generate big costs on Google Cloud!**
+
+### Initial setup
+
+Set the zone to europe-west4-a (the only one with big TPUs)
+
+`gcloud config set compute/zone europe-west4-a`
+
+Create a Storage Bucket
+
+`gsutil mb -p <PROJECT-ID> -c standard gs://<BUCKET-NAME>`
+
+Upload the dataset to the Bucket. Run the following command on your local computer
+
+`gsutil cp -r ./dataset gs://<BUCKET-NAME>/`
+
+Create a TPU and VM machine. Here we are setting the small v2-8 TPU as a safeguard, you will need bigger TPUs to train the models.
+
+`ctpu up --tf-version=2.1 --project=<PROJECT-ID> --tpu-size=v2-8 --preemptible`
+
+When logged in on the new VM machine type the install Tensorflow 1.15.2
+
+`pip3 install tensorflow==1.15.2`
+
+Clone the gpt2-ml from Deep-ESP
+
+`git clone https://github.com/DeepESP/gpt2-ml.git`
+
+Edit the training script and setup the OUTPUT_DIR (`gs://<BUCKET-NAME>/output`) and input_file (`gs://<BUCKET-NAME>/dataset`)
+
+`nano train_tpu_adafactor.sh`
+
+### Training
+
+Run the training script
+
+`bash train_tpu_adafactor.sh`
+
+### Monitoring Training
+
+(coming soon)
+
+### Get checkpoint
+
+To download the checkpoints run the following command on your local computer
+
+`gsutil cp -r gs://<BUCKET-NAME>/output ./`
+
+This will download *all* checkpoints, you might want to download only the last one.
 
 ## Disclaimer
 The contents in this repository are for academic research purpose, and we do not provide any conclusive remarks.

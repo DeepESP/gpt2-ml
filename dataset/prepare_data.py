@@ -13,7 +13,7 @@ import collections
 import os
 from tempfile import TemporaryDirectory
 
-from tokenization import tokenization
+from tokenizers import ByteLevelBPETokenizer
 
 parser = argparse.ArgumentParser(description='SCRAPE!')
 parser.add_argument(
@@ -21,7 +21,7 @@ parser.add_argument(
     dest='fold',
     default=0,
     type=int,
-    help='which fold we are on'
+    help='Which fold we are on'
 )
 parser.add_argument(
     '-num_folds',
@@ -48,25 +48,37 @@ parser.add_argument(
 parser.add_argument(
     '-input_fn',
     dest='input_fn',
-    default='realnews.jsonl',
+    default='./dataset/',
     type=str,
-    help='Base filename to use. THIS MUST BE A LOCAL FILE.'
+    help='Path to dataset in json format. THIS MUST BE A LOCAL FILE.'
 )
 parser.add_argument(
     '-max_seq_length',
     dest='max_seq_length',
-    default=1025,
+    default=1024,
     type=int,
     help='Max sequence length',
 )
 
+parser.add_argument(
+    '-vocab_file',
+    dest='vocab_file',
+    default='gpt2/gpt2-vocab.json',
+    type=str,
+    help='Tokenizer vocab.json file.'
+)
+parser.add_argument(
+    '-merges_file',
+    dest='merges_file',
+    default='gpt2/gpt2-merges.txt',
+    type=str,
+    help='Tokenizer merges.txt file.'
+)
 
 args = parser.parse_args()
 random.seed(args.seed + args.fold)
 
-#encoder = get_encoder()
-tokenizer = tokenization.FullTokenizer(
-    vocab_file="bert-base-chinese-vocab.txt", do_lower_case=True)
+tokenizer = ByteLevelBPETokenizer(args.vocab_file, args.merges_file)
 
 
 class TFRecordWriter(object):
@@ -126,8 +138,8 @@ def article_iterator(tokenizer):
 
                         line = tokenization.convert_to_unicode(
                             article['text'])  # for news2016zh text body
-                        tokens = tokenizer.tokenize(line)
-                        input_ids = tokenizer.convert_tokens_to_ids(tokens)
+                        tokens = tokenizer.encode(line)
+                        input_ids = tokens.ids
 
                         article['input_ids'] = input_ids
 
@@ -152,7 +164,7 @@ def buffered_and_sliding_window_article_iterator(tokenizer, final_desired_size=1
     """ We apply a sliding window to fix long sequences, and use a buffer that combines short sequences."""
     for article in article_iterator(tokenizer):
         if len(article['input_ids']) >= final_desired_size:
-            article['input_ids'] = article['input_ids'][0:final_desired_size-1]
+            article['input_ids'] = article['input_ids'][0:final_desired_size - 1]
         while len(article['input_ids']) < final_desired_size:
             article['input_ids'].append(0)
         yield article
@@ -178,7 +190,7 @@ with TFRecordWriter(train_file) as train_writer:
         # DEBUG
         if article['inst_index'] < 5:
             print("~~~\nIndex {}. ARTICLE: {}\n---\nTokens: {}\n\n".format(article['inst_index'],
-                                                                           tokenizer.convert_ids_to_tokens(
+                                                                           tokenizer.decode(
                                                                                article['input_ids']),
                                                                            article['input_ids']
                                                                            ), flush=True)

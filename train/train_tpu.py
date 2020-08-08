@@ -24,7 +24,7 @@ flags = tf.flags
 
 FLAGS = flags.FLAGS
 
-## Required parameters
+# Required parameters
 flags.DEFINE_string(
     "config_file", 'configs/base.json',
     "The config json file corresponding to the pre-trained news model. "
@@ -38,7 +38,7 @@ flags.DEFINE_string(
     "output_dir", None,
     "The output directory where the model checkpoints will be written.")
 
-## Other parameters
+# Other parameters
 flags.DEFINE_string(
     "init_checkpoint", None,
     "Initial checkpoint (usually from a pre-trained model).")
@@ -150,6 +150,7 @@ def main(_):
         is_training=True)
 
     estimator.train(input_fn=train_input_fn, max_steps=FLAGS.num_train_steps)
+
 
 if __name__ == "__main__":
     flags.mark_flag_as_required("input_file")

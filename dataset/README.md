@@ -1,3 +1,6 @@
+
+
+```
 curl -o ~/miniconda.sh -O https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
 chmod +x ~/miniconda.sh
 ~/miniconda.sh -b -p ~/conda
@@ -12,3 +15,4 @@ sudo apt install parallel
 pip install ujson==2.0.3
 
 export PYTHONPATH=$(pwd) //project path
+```

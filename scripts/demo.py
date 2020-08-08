@@ -8,7 +8,7 @@ import tensorflow.compat.v1 as tf
 import numpy as np
 
 from train.modeling import GroverModel, GroverConfig, sample
-from tokenization import tokenization
+from tokenizers import ByteLevelBPETokenizer
 
 ##### ignore tf deprecated warning temporarily
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -119,6 +119,22 @@ parser.add_argument(
     help='num_samples',
 )
 
+parser.add_argument(
+    '-vocab_file',
+    dest='vocab_file',
+    default='gpt2/gpt2-vocab.json',
+    type=str,
+    help='Tokenizer vocab.json file.'
+)
+parser.add_argument(
+    '-merges_file',
+    dest='merges_file',
+    default='gpt2/gpt2-merges.txt',
+    type=str,
+    help='Tokenizer merges.txt file.'
+)
+
+
 def extract_generated_target(output_tokens, tokenizer):
     """
     Given some tokens that were generated, extract the target
@@ -134,15 +150,15 @@ def extract_generated_target(output_tokens, tokenizer):
     end_ind = output_tokens.shape[0]
 
     return {
-        'extraction': tokenization.printable_text(''.join(tokenizer.convert_ids_to_tokens(output_tokens))),
+        'extraction': tokenizer.decode(output_tokens),
         'start_ind': start_ind,
         'end_ind': end_ind,
     }
 
+
 args = parser.parse_args()
 proj_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-vocab_file_path = os.path.join(proj_root_path, "tokenization/clue-vocab.txt")
-tokenizer = tokenization.FullTokenizer(vocab_file=vocab_file_path , do_lower_case=True)
+tokenizer = ByteLevelBPETokenizer(args.vocab_file, args.merges_file)
 news_config = GroverConfig.from_json_file(args.config_fn)
 
 # We might have to split the batch into multiple chunks if the batch size is too large
@@ -174,9 +190,9 @@ with tf.Session(config=tf_config, graph=tf.Graph()) as sess:
     while text != "":
         for i in range(args.samples):
             print("Sample,", i + 1, " of ", args.samples)
-            line = tokenization.convert_to_unicode(text)
-            bert_tokens = tokenizer.tokenize(line)
-            encoded = tokenizer.convert_tokens_to_ids(bert_tokens)
+            line = text
+            bert_tokens = tokenizer.encode(line)
+            encoded = bert_tokens.ids
             context_formatted = []
             context_formatted.extend(encoded)
             # Format context end
@@ -195,7 +211,7 @@ with tf.Session(config=tf_config, graph=tf.Graph()) as sess:
                     extraction = extract_generated_target(output_tokens=t_i, tokenizer=tokenizer)
                     gens.append(extraction['extraction'])
 
-            l = re.findall('.{1,70}', gens[0].replace('[UNK]', '').replace('##', ''))
-            print("\n".join(l))
+            lines = re.findall('.{1,70}', gens[0].replace('[UNK]', '').replace('##', ''))
+            print("\n".join(lines))
         print('Next try:⬇️')
         text = input()
