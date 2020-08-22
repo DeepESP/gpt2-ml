@@ -7,6 +7,7 @@ import os
 import re
 import csv
 import sys
+import random
 import argparse
 import tensorflow as tf
 
@@ -63,19 +64,83 @@ parser.add_argument(
 parser.add_argument(
     '-vocab_file',
     dest='vocab_file',
-    default='vocabs/spanish/vocab.json',
+    default='../vocabs/spanish/vocab.json',
     type=str,
     help='Tokenizer vocab.json file.'
 )
 parser.add_argument(
     '-merges_file',
     dest='merges_file',
-    default='vocabs/spanish/merges.txt',
+    default='../vocabs/spanish/merges.txt',
     type=str,
     help='Tokenizer merges.txt file.'
 )
 
 args = parser.parse_args()
+
+
+class text_list:
+    def __init__(self):
+        self.texts = []
+
+    def new_file(self):
+        if len(self.texts) > 0 and self.texts[-1] == "":
+            return
+        self.texts.append("")
+
+    def add_text(self, text):
+        self.texts[-1] += text
+
+    def length(self):
+        length = 0
+        for t in self.texts:
+            length += len(t)
+        return length
+
+    def pop(self, length):
+        assert length <= self.length()
+        to_pop = []
+        to_remove = 0
+        le = 0
+        if self.texts[-1] == "":
+            self.texts = self.texts[:-1]
+        for t in self.texts:
+            if le + len(t) < length:
+                to_pop.append(t)
+                le += len(t)
+                to_remove += 1
+            else:
+                to_pop.append(t[:length - le])
+                self.texts = self.texts[to_remove:]
+                self.texts[0] = self.texts[0][length - le:]
+                return to_pop
+
+
+# Quick Tests for the text_list class
+tt = text_list()
+tt.new_file()
+tt.add_text("1234")
+assert tt.length() == 4
+tt.new_file()
+assert tt.length() == 4
+tt.add_text("56789")
+assert tt.length() == 9
+p = tt.pop(6)
+assert p == ["1234", "56"]
+assert tt.length() == 3
+assert tt.texts == ["789"]
+tt.new_file()
+assert len(tt.texts) == 2
+tt.new_file()
+assert len(tt.texts) == 2
+p = tt.pop(3)
+assert p == ["789"]
+assert len(tt.texts) == 1
+tt.add_text("1234")
+assert tt.length() == 4
+assert len(tt.texts) == 1
+print("Tests passed")
+# End of texts
 
 paths = []
 for (dirpath, _, fnames) in os.walk(args.input_fn):
@@ -85,8 +150,6 @@ for (dirpath, _, fnames) in os.walk(args.input_fn):
         if fname.endswith(".txt") or fname.endswith(".csv"):
             paths.append(os.path.join(dirpath, fname))
 
-thread = 0
-
 
 def create_int_feature(values):
     feature = tf.train.Feature(
@@ -94,39 +157,19 @@ def create_int_feature(values):
     return feature
 
 
-def get_fragment(window_size=2048):
-    text = ""
-    count = -1  # -1, because the loops adds +1 at the start
-    for path in paths:
-        count += 1
-        print("{}/{} of files {}".format(count, len(paths), path))
-        if count % args.num_folds != args.fold:
-            continue
-        with open(path, 'r', encoding='utf-8', errors='ignore') as file_:
-            if path.endswith(".txt"):
-                for line in file_:
-                    text += line
-                    if len(text) > window_size:
-                        window_text = text[:window_size]
-                        text = text[window_size:]
-                        yield window_text
-            elif path.endswith(".csv"):
-                reader = csv.reader(file_, delimiter=',')
-                for row in reader:
-                    text += row[0]
-                    if len(text) > window_size:
-                        window_text = text[:window_size]
-                        text = text[window_size:]
-                        yield window_text
-
-
 def is_clean(text, segment_size=128):
+    """
+    Check if a string have enough information
+    by calculating the ratio between letters and other symbols
+    """
+    if len(text) == 0 or text == "\n":
+        return True
     end = segment_size
     while 1:
         text_to_test = text[end - segment_size:end]
-        letters_count = len(re.findall('[a-z]|[A-Z]', text_to_test))
-        if letters_count < 80:
-            print(letters_count, text_to_test)
+        letters_count = len(re.findall('[a-z]|[A-Z]|á|é|í|ó|í|Á|É|Í|Ó|Ú|ñ|Ñ', text_to_test))
+        if letters_count / len(text_to_test) < 0.4:
+            print(len(text_to_test), letters_count, text_to_test)
             return False
         end += segment_size
         if end > len(text):
@@ -135,41 +178,60 @@ def is_clean(text, segment_size=128):
 
 
 def get_windows(window_size=1024):
-    for text in get_fragment(window_size * 2):
-        while 1:
-            window_text = text[:window_size]
-            text = text[window_size:]
-            if is_clean(window_text):
-                yield window_text
-            else:
-                print("SKIP!")
-                pass
-            if window_size > len(text):
-                break
+    """
+    Feed windows to encode, check if the text is clean
+    """
+    text = text_list()
+    count = -1  # -1, because the loops adds +1 at the start
+    for path in paths:
+        count += 1
+        if count % args.num_folds != args.fold:
+            continue
+        print("{}/{} of files {}".format(count, len(paths), path))
+        text.new_file()
+        with open(path, 'r', encoding='utf-8', errors='ignore') as file_:
+            if path.endswith(".txt"):
+                for line in file_:
+                    if is_clean(line):
+                        text.add_text(line)
+                        if text.length() >= window_size:
+                            yield text.pop(window_size)
+                    else:
+                        text.new_file()
+            elif path.endswith(".csv"):
+                reader = csv.reader(file_, delimiter=',')
+                for row in reader:
+                    if is_clean(row[0]):
+                        text.add_text(row[0])
+                        if text.length() >= window_size:
+                            yield text.pop(window_size)
+                    else:
+                        text.new_file()
 
 
-tokenizer = ByteLevelBPETokenizer(args.vocab_file, args.merge_file, dropout=0.1)
+tokenizer = ByteLevelBPETokenizer(args.vocab_file, args.merges_file, dropout=0.1)
 
+train_file = args.base_fn + 'train_windowed_{}.tfrecord'.format(args.fold)
+train_writer = tf.io.TFRecordWriter(train_file)
 
-total_written = 0
-train_writer = None
 for window in get_windows(args.max_seq_length * 6):
-    if total_written == 0 or total_written % 1000000 == 0:
-        if train_writer is not None:
-            train_writer.close()
-        train_file = args.base_fn + 'train_windowed_{}_{:04d}.tfrecord'.format(thread, total_written)
-        train_writer = tf.io.TFRecordWriter(train_file)
-
-    window = re.sub(r'(\W|\w)\n', r'\1', window)
-    output = tokenizer.encode(window)
-    if len(output.ids) < args.max_seq_length:
+    encoded_string = []
+    for text in window:
+        encoded_string.append(0)  # Appending <|endoftext|> token
+        text = re.sub(r'(\W|\w)\n', r'\1', text)  # Clean line breaks
+        encoded_string += tokenizer.encode(text).ids
+    if len(encoded_string) < args.max_seq_length:
         print("Too short")
         continue
-    features = {
-        "input_ids": create_int_feature(output.ids[:args.max_seq_length])
-    }
+    features = {"input_ids": []}
+    if random.random() > 0.5:
+        encoded_string = encoded_string[:args.max_seq_length]
+    else:
+        encoded_string = encoded_string[len(encoded_string) - args.max_seq_length:]
+    assert len(encoded_string) == args.max_seq_length, "Window length {} is not equal to desired length {}".format(len(encoded_string), args.max_seq_length)
+
+    features["input_ids"] = create_int_feature(encoded_string)
     tf_example = tf.train.Example(features=tf.train.Features(feature=features))
     train_writer.write(tf_example.SerializeToString())
-    total_written += 1
 
 train_writer.close()
