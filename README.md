@@ -78,7 +78,13 @@ Run the training script
 
 ### Monitoring Training
 
-(coming soon)
+From your local computer
+
+`tensorboard --logdir gs://<BUCKET-NAME>/output --reload_interval 60`
+
+Note to self: loss, accuracy, perplexity. Accuracy shoulg get near 40%.
+
+Trick for faster fine tuning: Keep the same vector for tokens in common between Spanish and English.
 
 ### Get checkpoint
 

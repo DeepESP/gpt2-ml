@@ -14,10 +14,11 @@
 # limitations under the License.
 
 import collections
+import random
 import tensorflow.compat.v1 as tf
 
 
-def _decode_record(record, name_to_features):
+def _decode_record(record, name_to_features, seq_length, sample_length=1024):
     """Decodes a record to a TensorFlow example."""
     example = tf.parse_single_example(record, name_to_features)
 
@@ -27,7 +28,12 @@ def _decode_record(record, name_to_features):
         t = example[name]
         if t.dtype == tf.int64:
             t = tf.cast(t, tf.int32)
-        example[name] = t
+        if seq_length == sample_length:
+            example[name] = t
+        else:
+            rand_positon = random.randint(0, sample_length - seq_length)
+            example[name] = t[rand_positon:rand_positon + seq_length]
+
     return example
 
 
@@ -76,7 +82,7 @@ def input_fn_builder(input_files,
         # every sample.
         d = d.apply(
             tf.data.experimental.map_and_batch(
-                lambda record: _decode_record(record, name_to_features),
+                lambda record: _decode_record(record, name_to_features, seq_length),
                 batch_size=batch_size,
                 num_parallel_batches=num_cpu_threads,
                 drop_remainder=True))
