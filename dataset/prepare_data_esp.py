@@ -160,7 +160,7 @@ def create_int_feature(values):
 def is_clean(text, segment_size=128):
     """
     Check if a string have enough information
-    by calculating the ratio between letters and other symbols
+    by calculating the ratio between letters and all the characters
     """
     if len(text) == 0 or text == "\n":
         return True
@@ -223,14 +223,14 @@ for window in get_windows(args.max_seq_length * 6):
     if len(encoded_string) < args.max_seq_length:
         print("Too short")
         continue
-    features = {"input_ids": []}
+
     if random.random() > 0.5:
         encoded_string = encoded_string[:args.max_seq_length]
     else:
         encoded_string = encoded_string[len(encoded_string) - args.max_seq_length:]
     assert len(encoded_string) == args.max_seq_length, "Window length {} is not equal to desired length {}".format(len(encoded_string), args.max_seq_length)
 
-    features["input_ids"] = create_int_feature(encoded_string)
+    features = {"input_ids": create_int_feature(encoded_string)}
     tf_example = tf.train.Example(features=tf.train.Features(feature=features))
     train_writer.write(tf_example.SerializeToString())
 

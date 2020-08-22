@@ -18,7 +18,7 @@ import random
 import tensorflow.compat.v1 as tf
 
 
-def _decode_record(record, name_to_features, seq_length, sample_length=1024):
+def _decode_record(record, name_to_features, seq_length, sample_length=10240, is_training=True):
     """Decodes a record to a TensorFlow example."""
     example = tf.parse_single_example(record, name_to_features)
 
@@ -31,7 +31,12 @@ def _decode_record(record, name_to_features, seq_length, sample_length=1024):
         if seq_length == sample_length:
             example[name] = t
         else:
-            rand_positon = random.randint(0, sample_length - seq_length)
+            # On Training we randomize the sampling
+            # On Eval we start always from 0
+            if is_training:
+                rand_positon = random.randint(0, sample_length - seq_length)
+            else:
+                rand_positon = 0
             example[name] = t[rand_positon:rand_positon + seq_length]
 
     return example
@@ -80,12 +85,15 @@ def input_fn_builder(input_files,
         # size dimensions. For eval, we assume we are evaluating on the CPU or GPU
         # and we *don't* want to drop the remainder, otherwise we wont cover
         # every sample.
+
+        # Eibriel: for some reason drop_remainder is always True, I think its ok
         d = d.apply(
             tf.data.experimental.map_and_batch(
                 lambda record: _decode_record(record, name_to_features, seq_length),
                 batch_size=batch_size,
                 num_parallel_batches=num_cpu_threads,
-                drop_remainder=True))
+                drop_remainder=True,
+                is_training=is_training))
         return d
 
     return input_fn
@@ -112,7 +120,7 @@ def classification_convert_examples_to_features(
             if chop_from_front_if_needed:
                 tokens = tokens[-max_seq_length:]
             else:
-                tokens = example['ids'][:(max_seq_length-1)] + [encoder.begin_summary]
+                tokens = example['ids'][:(max_seq_length - 1)] + [encoder.begin_summary]
         elif len(tokens) < max_seq_length:
             tokens.extend([encoder.padding] * (max_seq_length - len(tokens)))
 
@@ -126,7 +134,7 @@ def classification_convert_examples_to_features(
     if pad_extra_examples:
         for x in range(len(examples) % batch_size):
             features = collections.OrderedDict()
-            features['input_ids'] = tf.train.Feature(int64_list=tf.train.Int64List(value=[0]*max_seq_length))
+            features['input_ids'] = tf.train.Feature(int64_list=tf.train.Int64List(value=[0] * max_seq_length))
             features['label_ids'] = tf.train.Feature(int64_list=tf.train.Int64List(value=[0]))
             features['is_real_example'] = tf.train.Feature(int64_list=tf.train.Int64List(value=[0]))
             tf_example = tf.train.Example(features=tf.train.Features(feature=features))
