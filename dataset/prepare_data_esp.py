@@ -8,11 +8,8 @@ import re
 import csv
 import sys
 import argparse
-import collections
 import tensorflow as tf
 
-# from langdetect import detect_langs, detect
-import langdetect
 from tokenizers import ByteLevelBPETokenizer
 
 csv.field_size_limit(sys.maxsize)
@@ -123,36 +120,6 @@ def get_fragment(window_size=2048):
                         yield window_text
 
 
-factory = langdetect.detector_factory.DetectorFactory()
-factory.load_profile(langdetect.detector_factory.PROFILES_DIRECTORY)
-
-
-def is_clean_(text, segment_size=128):
-    end = segment_size
-    while 1:
-        text_to_test = text[end - segment_size:end]
-        try:
-            # detect_ = detect_langs(text[end - segment_size:end])
-            detector = factory.create()
-            detector.set_prior_map({"es": 0.1})
-            # detect_ = detect(text[end - segment_size:end])
-
-            detector.append(text_to_test)
-        except e:
-            return False
-        # if detect[0].lang != "es" or len(detect) > 1:
-        #     return False
-        # this re-creates the detector each time
-        detect_result = detector.detect()
-        if detect_result != 'es':
-            print(detect_result, text_to_test)
-            return False
-        end += segment_size
-        if end > len(text):
-            break
-    return True
-
-
 def is_clean(text, segment_size=128):
     end = segment_size
     while 1:
@@ -193,13 +160,14 @@ for window in get_windows(args.max_seq_length * 6):
         train_file = args.base_fn + 'train_windowed_{}_{:04d}.tfrecord'.format(thread, total_written)
         train_writer = tf.io.TFRecordWriter(train_file)
 
-    features = collections.OrderedDict()
     window = re.sub(r'(\W|\w)\n', r'\1', window)
     output = tokenizer.encode(window)
     if len(output.ids) < args.max_seq_length:
         print("Too short")
         continue
-    features["input_ids"] = create_int_feature(output.ids[:args.max_seq_length])
+    features = {
+        "input_ids": create_int_feature(output.ids[:args.max_seq_length])
+    }
     tf_example = tf.train.Example(features=tf.train.Features(feature=features))
     train_writer.write(tf_example.SerializeToString())
     total_written += 1
