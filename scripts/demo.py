@@ -10,7 +10,7 @@ import numpy as np
 from train.modeling import GroverModel, GroverConfig, sample
 from tokenizers import ByteLevelBPETokenizer
 
-##### ignore tf deprecated warning temporarily
+# ignore tf deprecated warning temporarily
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.DEBUG)
 from tensorflow.python.util import deprecation
@@ -44,7 +44,7 @@ parser.add_argument(
 parser.add_argument(
     '-config_fn',
     dest='config_fn',
-    default='configs/mega.json',
+    default='../configs/base.json',
     type=str,
     help='Configuration JSON for the model',
 )
@@ -107,7 +107,7 @@ parser.add_argument(
 parser.add_argument(
     '-eos_token',
     dest='eos_token',
-    default=102,
+    default=0,
     type=int,
     help='eos token id',
 )
@@ -122,14 +122,14 @@ parser.add_argument(
 parser.add_argument(
     '-vocab_file',
     dest='vocab_file',
-    default='gpt2/gpt2-vocab.json',
+    default='../vocabs/spanish/vocab.json',
     type=str,
     help='Tokenizer vocab.json file.'
 )
 parser.add_argument(
     '-merges_file',
     dest='merges_file',
-    default='gpt2/gpt2-merges.txt',
+    default='../vocabs/spanish/merges.txt',
     type=str,
     help='Tokenizer merges.txt file.'
 )
