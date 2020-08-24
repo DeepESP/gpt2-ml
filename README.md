@@ -2,7 +2,7 @@
 
 # **GPT2** for Multiple Languages
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1egVutwWFXGKujolRt5D9Ju0Sij0GgoIY#scrollTo=Lf1jZya7dBjK)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/imcaspar/gpt2-ml/blob/master/pretrained_model_demo.ipynb)
 [![GitHub](https://img.shields.io/github/license/imcaspar/gpt2-ml)](https://github.com/imcaspar/gpt2-ml)
 [![GitHub All Releases](https://img.shields.io/github/downloads/imcaspar/gpt2-ml/total)](https://github.com/imcaspar/gpt2-ml/releases)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/imcaspar/gpt2-ml/issues)
@@ -11,7 +11,7 @@
 - [x] Simplifed GPT2 train scripts（based on Grover, supporting TPUs）
 - [x] Ported bert tokenizer, multilingual corpus compatible
 - [x] 1.5B GPT2 pretrained Chinese model ( ~15G corpus, 10w steps )
-- [x] Batteries-included Colab demo [#](https://github.com/imcaspar/gpt2-ml#google-colab)
+- [x] Batteries-included Colab demo [#](https://github.com/DeepESP/gpt2-ml#google-colab)
 - [x] 1.5B GPT2 pretrained Chinese model ( ~30G corpus, 22w steps )
 
 ## Pretrained Model
@@ -30,7 +30,7 @@ Using [Cloud TPU Pod v3-256](https://cloud.google.com/tpu/docs/types-zones#types
 ## Google Colab
 With just 2 clicks (not including Colab auth process), the 1.5B pretrained Chinese model demo is ready to go:
 
-[**[Colab Notebook]**](https://colab.research.google.com/drive/1egVutwWFXGKujolRt5D9Ju0Sij0GgoIY#scrollTo=Lf1jZya7dBjK)
+[**[Colab Notebook]**](https://colab.research.google.com/github/imcaspar/gpt2-ml/blob/master/pretrained_model_demo.ipynb)
 
 <img src="./.github/demo.png" width="640">
 

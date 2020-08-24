@@ -44,14 +44,14 @@ parser.add_argument(
 parser.add_argument(
     '-config_fn',
     dest='config_fn',
-    default='configs/base.json',
+    default='../configs/base.json',
     type=str,
     help='Configuration JSON for the model',
 )
 parser.add_argument(
     '-ckpt_fn',
     dest='ckpt_fn',
-    default='models/mega/model.ckpt',
+    default='../models/mega/model.ckpt',
     type=str,
     help='checkpoint file for the model',
 )
@@ -122,14 +122,14 @@ parser.add_argument(
 parser.add_argument(
     '-vocab_file',
     dest='vocab_file',
-    default='vocabs/spanish/vocab.json',
+    default='../vocabs/spanish/vocab.json',
     type=str,
     help='Tokenizer vocab.json file.'
 )
 parser.add_argument(
     '-merges_file',
     dest='merges_file',
-    default='vocabs/spanish/merges.txt',
+    default='../vocabs/spanish/merges.txt',
     type=str,
     help='Tokenizer merges.txt file.'
 )
@@ -158,7 +158,6 @@ def extract_generated_target(output_tokens, tokenizer):
 
 args = parser.parse_args()
 proj_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-print(args.vocab_file, args.merges_file)
 tokenizer = ByteLevelBPETokenizer(args.vocab_file, args.merges_file)
 news_config = GroverConfig.from_json_file(args.config_fn)
 
