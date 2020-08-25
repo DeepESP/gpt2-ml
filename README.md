@@ -2,11 +2,11 @@
 
 # **GPT2** for Multiple Languages
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mathigatti/gpt2-ml/blob/master/pretrained_model_demo.ipynb)
-[![GitHub](https://img.shields.io/github/license/mathigatti/gpt2-ml)](https://github.com/mathigatti/gpt2-ml)
-[![GitHub All Releases](https://img.shields.io/github/downloads/mathigatti/gpt2-ml/total)](https://github.com/mathigatti/gpt2-ml/releases)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mathigatti/gpt2-ml/issues)
-[![GitHub stars](https://img.shields.io/github/stars/mathigatti/gpt2-ml?style=social)](https://github.com/mathigatti/gpt2-ml)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DeepESP/gpt2-ml/blob/master/pretrained_model_demo.ipynb)
+[![GitHub](https://img.shields.io/github/license/DeepESP/gpt2-ml)](https://github.com/DeepESP/gpt2-ml)
+[![GitHub All Releases](https://img.shields.io/github/downloads/DeepESP/gpt2-ml/total)](https://github.com/DeepESP/gpt2-ml/releases)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/DeepESP/gpt2-ml/issues)
+[![GitHub stars](https://img.shields.io/github/stars/DeepESP/gpt2-ml?style=social)](https://github.com/DeepESP/gpt2-ml)
 
 - [x] Simplifed GPT2 train scripts（based on Grover, supporting TPUs）
 - [x] Ported bert tokenizer, multilingual corpus compatible
@@ -30,7 +30,7 @@ Using [Cloud TPU Pod v3-256](https://cloud.google.com/tpu/docs/types-zones#types
 ## Google Colab
 With just 2 clicks (not including Colab auth process), the 1.5B pretrained Chinese model demo is ready to go:
 
-[**[Colab Notebook]**](https://colab.research.google.com/github/mathigatti/gpt2-ml/blob/master/pretrained_model_demo.ipynb)
+[**[Colab Notebook]**](https://colab.research.google.com/github/DeepESP/gpt2-ml/blob/master/pretrained_model_demo.ipynb)
 
 <img src="./.github/demo.png" width="640">
 
@@ -103,7 +103,7 @@ The contents in this repository are for academic research purpose, and we do not
   year = {2019},
   publisher = {GitHub},
   journal = {GitHub repository},
-  howpublished = {\url{https://github.com/mathigatti/gpt2-ml}},
+  howpublished = {\url{https://github.com/DeepESP/gpt2-ml}},
 }
 ```
 
