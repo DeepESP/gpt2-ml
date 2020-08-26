@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Usage
-# prepare_data_esp.sh /input/path /output/path
+# bash prepare_data_esp.sh "565180,/media/mega_disco/DataSets/GTP-2/Merged/merged_wiki.txt:0.35,/media/mega_disco/DataSets/GTP-2/Merged/merged_otros.txt:0.25,/media/mega_disco/DataSets/GTP-2/Merged/merged_epub.txt:1" /media/mega_disco/DataSets/GTP-2/TFRecord/V2
 # requires parallel: apt install parallel
 
 NUM_FOLDS=512

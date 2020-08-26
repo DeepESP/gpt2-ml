@@ -24,6 +24,7 @@ from train import optimization_adafactor
 from train.utils import get_assignment_map_from_checkpoint, get_shape_list, get_attention_mask, gelu, layer_norm, dropout, \
     construct_scalar_host_call
 
+
 class GroverConfig(object):
     """Configuration for `GroverModel`"""
 
@@ -778,7 +779,7 @@ def sample(news_config: GroverConfig, initial_context, eos_token, min_len, ignor
 
         def cond(ctx, cache, probs):
             # ctx = tf.Print(ctx,[tf.shape(ctx)])
-            is_eos = tf.reduce_all(tf.reduce_any(tf.equal(ctx[:,-1:], eos_token), axis=1))
+            is_eos = tf.reduce_all(tf.reduce_any(tf.equal(ctx[:, -1:], eos_token), axis=1))
             is_len = tf.greater(get_shape_list(ctx)[1], min_len)
             return tf.logical_not(tf.logical_and(is_eos, is_len))
 

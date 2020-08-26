@@ -53,7 +53,8 @@ def input_fn_builder(input_files,
         """The actual input function."""
         batch_size = params["batch_size"]
         name_to_features = {
-            "input_ids": tf.FixedLenFeature([seq_length + 1], tf.int64),
+            # "input_ids": tf.FixedLenFeature([seq_length + 1], tf.int64),
+            "input_ids": tf.FixedLenFeature([10239 + 1], tf.int64),
         }
 
         # For training, we want a lot of parallel reading and shuffling.
@@ -89,11 +90,10 @@ def input_fn_builder(input_files,
         # Eibriel: for some reason drop_remainder is always True, I think its ok
         d = d.apply(
             tf.data.experimental.map_and_batch(
-                lambda record: _decode_record(record, name_to_features, seq_length),
+                lambda record: _decode_record(record, name_to_features, seq_length, is_training=is_training),
                 batch_size=batch_size,
                 num_parallel_batches=num_cpu_threads,
-                drop_remainder=True,
-                is_training=is_training))
+                drop_remainder=True))
         return d
 
     return input_fn

@@ -8,6 +8,7 @@ __pycache__/
 
 *_test.py
 logs_*
+merge_log.txt
 
 # Distribution / packaging
 .Python
