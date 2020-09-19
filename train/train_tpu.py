@@ -15,7 +15,7 @@
 
 """ Training script! """
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 from train.dataloader import input_fn_builder
 from train.modeling import model_fn_builder, GroverConfig

@@ -65,7 +65,10 @@ Clone the gpt2-ml from Deep-ESP
 
 Edit the training script and setup the OUTPUT_DIR (`gs://<BUCKET-NAME>/output`) and input_file (`gs://<BUCKET-NAME>/dataset`)
 
-`nano train_tpu_adafactor.sh`
+```
+cd gpt2-ml/train/
+nano train_tpu_adafactor.sh
+```
 
 ### Training
 

@@ -15,7 +15,7 @@
 
 import collections
 import random
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
 def _decode_record(record, name_to_features, seq_length, sample_length=10240, is_training=True):

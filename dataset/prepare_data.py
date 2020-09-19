@@ -146,9 +146,9 @@ def article_iterator(tokenizer):
                         article['inst_index'] = (l_no // args.num_folds)
                         if article['inst_index'] < 100:
                             print('---\nINPUT{}. {}\n---\nTokens: {}\n'.format(article['inst_index'],
-                                                                            tokens,
-                                                                            input_ids
-                                                                            ), flush=True)
+                                                                               tokens,
+                                                                               input_ids
+                                                                               ), flush=True)
                         if len(article['input_ids']) <= 64:  # min size of article
                             continue
                         yield article

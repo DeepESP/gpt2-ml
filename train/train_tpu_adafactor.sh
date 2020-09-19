@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PYTHONPATH=./
+export PYTHONPATH=../
 
 learning_rate=1e-4
 init_checkpoint=""
@@ -32,7 +32,7 @@ num_train_steps=800000
 let batch_size="$batch_size_per_core * $num_tpu_cores"
 
 python3 train_tpu.py \
-    --config_file=configs/${model_type}.json \
+    --config_file=../configs/${model_type}.json \
     --input_file=${input_file} \
     --output_dir=${OUTPUT_DIR} \
     --max_seq_length=${max_seq_length} \

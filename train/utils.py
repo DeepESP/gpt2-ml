@@ -17,7 +17,7 @@ import collections
 import re
 
 import six
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 import numpy as np
 from tensorflow.python.lib.io import file_io
 
